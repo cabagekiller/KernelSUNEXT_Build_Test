@@ -48,7 +48,7 @@ index 6392aca3c..de2f0378b 100644
  	if(oplus_sync_saupwk_event)
          oplus_sync_saupwk_event(type, code, value);
 diff --git a/fs/devpts/inode.c b/fs/devpts/inode.c
-index 553a3f330..071d4d6a9 100644
+index 553a3f330..da54310f8 100644
 --- a/fs/devpts/inode.c
 +++ b/fs/devpts/inode.c
 @@ -599,6 +599,10 @@ struct dentry *devpts_pty_new(struct pts_fs_info *fsi, int index, void *priv)
@@ -66,9 +66,9 @@ index 553a3f330..071d4d6a9 100644
   */
  void *devpts_get_priv(struct dentry *dentry)
  {
-+	#ifdef CONFIG_KSU
++#ifdef CONFIG_KSU
 +    ksu_handle_devpts(dentry->d_inode);
-+    #endif
++#endif
  	if (dentry->d_sb->s_magic != DEVPTS_SUPER_MAGIC)
  		return NULL;
  	return dentry->d_fsdata;
@@ -198,7 +198,7 @@ index c90cfb8de..8d67bbcb6 100644
  	if (!(file->f_mode & FMODE_READ))
  		return -EBADF;
 diff --git a/fs/stat.c b/fs/stat.c
-index 376543199..923287027 100644
+index 376543199..41b828ad2 100644
 --- a/fs/stat.c
 +++ b/fs/stat.c
 @@ -148,6 +148,10 @@ int vfs_statx_fd(unsigned int fd, struct kstat *stat,
@@ -216,9 +216,9 @@ index 376543199..923287027 100644
  	struct path path;
  	int error = -EINVAL;
  	unsigned int lookup_flags = LOOKUP_FOLLOW | LOOKUP_AUTOMOUNT;
-+	#ifdef CONFIG_KSU
++#ifdef CONFIG_KSU
 +	ksu_handle_stat(&dfd, &filename, &flags);
-+    #endif
++#endif
  
  	if ((flags & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
  		       AT_EMPTY_PATH | KSTAT_QUERY_FLAGS)) != 0)
