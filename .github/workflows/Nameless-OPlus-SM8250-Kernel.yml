@@ -54,6 +54,9 @@ jobs:
         ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/susfs.h
         ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/susfs.c
 
+
+        grep -r "susfs_is_sus_su_hooks_enabled" .
+
         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
     
     - name: Download Clang-aosp
