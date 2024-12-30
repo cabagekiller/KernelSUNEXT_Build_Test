@@ -33,8 +33,6 @@ jobs:
         git clone --recursive https://github.com/Nameless-AOSP-OSS/kernel_oneplus_sm8250 -b fifteen android-kernel --depth=1
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/scripts
         sed -i 's/ -dirty//g' setlocalversion
-        cd $GITHUB_WORKSPACE/patches
-        sed -i '1655 r path_umount.c' $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/namespace.c
 
     - name: Setup official KernelSU
       run: |
@@ -55,8 +53,6 @@ jobs:
 
         ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/susfs.h
         ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/susfs.c
-
-        cat $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/open.c
 
         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
     
