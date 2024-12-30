@@ -48,8 +48,10 @@ jobs:
         cp ./susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         patch -p1 < 50_add_susfs_in_kernel-4.19.patch || echo "Patch failed, skipping."
 
-        sed -i '/struct ratelimit_state ratelimit;/a\#if defined(CONFIG_KSU_SUSFS) && !defined(ANDROID_KABI_RESERVE)\nu64 android_kabi_reserved2;\n#endif' $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
+        sed -i '/struct ratelimit_state ratelimit;/a\#if defined(CONFIG_KSU_SUSFS) && !defined(ANDROID_KABI_RESERVE)\nu64 android_kabi_reserved2;\n#endif\nANDROID_KABI_RESERVE(1);\nANDROID_KABI_RESERVE(2);' $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
 
+        cat $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
+        
         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
     
     - name: Download Clang-aosp
