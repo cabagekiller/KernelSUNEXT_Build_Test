@@ -39,6 +39,9 @@ jobs:
     - name: Setup official KernelSU
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+
+        patch -p1 < $GITHUB_WORKSPACE/patches/non-gki.diff || echo "Non-GKI patch failed, skipping."
+
         curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs-4.19
         KSU_VERSION=$(cd KernelSU-Next && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
 
@@ -51,7 +54,7 @@ jobs:
         sed -i '/struct ratelimit_state ratelimit;/a\#if defined(CONFIG_KSU_SUSFS) && !defined(ANDROID_KABI_RESERVE)\nu64 android_kabi_reserved2;\n#endif\nANDROID_KABI_RESERVE(1);\nANDROID_KABI_RESERVE(2);' $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
 
         cat $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
-        
+
         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
     
     - name: Download Clang-aosp
