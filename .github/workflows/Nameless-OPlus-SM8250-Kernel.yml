@@ -58,8 +58,9 @@ jobs:
 
         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19
         cp ./susfs4ksu/kernel_patches/include/linux/susfs.h $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
-
-        ls
+        cp ./susfs4ksu/kernel_patches/fs/susfs.c $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/
+        cp ./susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        patch -p1 < 50_add_susfs_in_kernel-4.19.patch
 
         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
       
