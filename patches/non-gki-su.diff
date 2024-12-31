@@ -1,0 +1,95 @@
+diff --git a/.gitignore b/.gitignore
+index 90fb50a3d..0dc474a7e 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -140,3 +140,5 @@ kernel/configs/android-*.cfg
+ #Ignoring Android.bp link file
+ #
+ Android.bp
++
++/out
+\ No newline at end of file
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 4120a2322..4a368518a 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -678,7 +678,7 @@ CONFIG_QUOTA=y
+ CONFIG_AUTOFS4_FS=y
+ CONFIG_FUSE_FS=m
+ CONFIG_CUSE=m
+-CONFIG_OVERLAY_FS=m
++CONFIG_OVERLAY_FS=y
+ CONFIG_VFAT_FS=y
+ CONFIG_TMPFS=y
+ CONFIG_HUGETLBFS=y
+@@ -720,3 +720,9 @@ CONFIG_CRYPTO_AES_ARM64_CE_CCM=y
+ CONFIG_CRYPTO_AES_ARM64_CE_BLK=y
+ CONFIG_CRYPTO_CHACHA20_NEON=m
+ CONFIG_CRYPTO_AES_ARM64_BS=m
++CONFIG_KPROBES=y
++CONFIG_HAVE_KPROBES=y
++CONFIG_KPROBE_EVENTS=y
++CONFIG_KSU=y
++CONFIG_KSU_SUSFS=y
++CONFIG_KSU_SUSFS_SUS_SU=y
+\ No newline at end of file
+diff --git a/arch/arm64/configs/vendor/kona-perf_defconfig b/arch/arm64/configs/vendor/kona-perf_defconfig
+index 404d33fbb..8b1c32aa2 100644
+--- a/arch/arm64/configs/vendor/kona-perf_defconfig
++++ b/arch/arm64/configs/vendor/kona-perf_defconfig
+@@ -1118,3 +1118,9 @@ CONFIG_LRU_GEN_STATS=n
+ CONFIG_OPLUS_FEATURE_CPU_JANKINFO=y
+ 
+ CONFIG_CRYPTO_CHACHA20POLY1305=y
++CONFIG_KPROBES=y
++CONFIG_HAVE_KPROBES=y
++CONFIG_KPROBE_EVENTS=y
++CONFIG_KSU=y
++CONFIG_KSU_SUSFS=y
++CONFIG_KSU_SUSFS_SUS_SU=y
+\ No newline at end of file
+diff --git a/fs/namespace.c b/fs/namespace.c
+index d8e09dbe3..4bb8b8050 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1653,6 +1653,40 @@ static inline bool may_mandlock(void)
+ }
+ #endif
+ 
++static int can_umount(const struct path *path, int flags)
++{
++	struct mount *mnt = real_mount(path->mnt);
++
++	if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
++		return -EINVAL;
++	if (!may_mount())
++		return -EPERM;
++	if (path->dentry != path->mnt->mnt_root)
++		return -EINVAL;
++	if (!check_mnt(mnt))
++		return -EINVAL;
++	if (mnt->mnt.mnt_flags & MNT_LOCKED) /* Check optimistically */
++		return -EINVAL;
++	if (flags & MNT_FORCE && !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++	return 0;
++}
++
++int path_umount(struct path *path, int flags)
++{
++	struct mount *mnt = real_mount(path->mnt);
++	int ret;
++
++	ret = can_umount(path, flags);
++	if (!ret)
++		ret = do_umount(mnt, flags);
++
++	/* we mustn't call path_put() as that would clear mnt_expiry_mark */
++	dput(path->dentry);
++	mntput_no_expire(mnt);
++	return ret;
++}
++
+ /*
+  * Now umount can handle mount points as well as block devices.
+  * This is important for filesystems which use unnamed block devices.
