@@ -46,7 +46,7 @@ index 404d33fbb..ed38a391e 100644
 +# CONFIG_KPROBE_EVENTS is not set
 +CONFIG_KSU=y
 +CONFIG_KSU_SUSFS=y
-+CONFIG_KSU_SUSFS_SUS_SU=n
++CONFIG_KSU_SUSFS_SUS_SU=y
 \ No newline at end of file
 diff --git a/drivers/input/input.c b/drivers/input/input.c
 index 6392aca3c..de2f0378b 100644
