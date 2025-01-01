@@ -48,6 +48,23 @@ index 404d33fbb..8b1c32aa2 100644
 +CONFIG_KSU_SUSFS=y
 +CONFIG_KSU_SUSFS_SUS_SU=y
 \ No newline at end of file
+diff --git a/fs/exec.c b/fs/exec.c
+index 152de9270..f8a1d53f0 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1746,6 +1746,12 @@ static int exec_binprm(struct linux_binprm *bprm)
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_KSU_SUSFS_SUS_SU
++extern bool susfs_is_sus_su_hooks_enabled __read_mostly;
++extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
++				 void *argv, void *envp, int *flags);
++#endif
++
+ #ifdef CONFIG_OPLUS_SECURE_GUARD
+ #if defined(CONFIG_OPLUS_EXECVE_BLOCK) || defined(CONFIG_OPLUS_EXECVE_REPORT)
+ extern int oplus_exec_block(struct file *file);
 diff --git a/fs/namespace.c b/fs/namespace.c
 index d8e09dbe3..4bb8b8050 100644
 --- a/fs/namespace.c
@@ -93,3 +110,21 @@ index d8e09dbe3..4bb8b8050 100644
  /*
   * Now umount can handle mount points as well as block devices.
   * This is important for filesystems which use unnamed block devices.
+diff --git a/fs/open.c b/fs/open.c
+index 155731594..7c34c93f5 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -348,6 +348,13 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
+ 	return ksys_fallocate(fd, mode, offset, len);
+ }
+ 
++#ifdef CONFIG_KSU_SUSFS_SUS_SU
++extern bool susfs_is_sus_su_hooks_enabled __read_mostly;
++extern int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
++			 int *flags);
++#endif
++
++
+ /*
+  * access() needs to use the real uid/gid, not the effective uid/gid.
+  * We do this by temporarily clearing all FS-related capabilities and
