@@ -50,8 +50,8 @@ jobs:
         git clone https://github.com/rifsxd/KernelSU-Next.git -b next
         cp ./susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next
 
-        git config --local user.email "test"
-        git config --local user.name "test"
+        git config --global user.email "test"
+        git config --global user.name "test"
         
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next
         patch -p1 < 10_enable_susfs_for_ksu.patch || echo "Patch failed, skipping."
@@ -109,7 +109,7 @@ jobs:
         make O=out ARCH=arm64 CC=clang $BA_CMD $EX_CMD $DEFCONFIG
 
         cat  out/.config
-        
+
         make -j$(nproc --all) O=out ARCH=arm64 CC=clang $BA_CMD $EX_CMD
     
     - name: Check a kernel output files with official KernelSU
