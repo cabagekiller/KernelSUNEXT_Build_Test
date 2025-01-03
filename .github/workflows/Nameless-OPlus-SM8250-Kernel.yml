@@ -54,6 +54,10 @@ jobs:
         patch -p1 < 10_enable_susfs_for_ksu.patch || echo "Patch failed, skipping."
         git checkout -- kernel/core_hook.c
         patch -p1 < $GITHUB_WORKSPACE/patches/ksu-susfs.patch || echo "Non-GKI patch failed, skipping."
+
+        git config --global user.email "test"
+        git config --global user.name "test"
+
         git add .
         git commit -m 'test'
         cd ..
