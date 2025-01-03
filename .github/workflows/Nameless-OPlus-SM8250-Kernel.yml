@@ -55,17 +55,17 @@ jobs:
         
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next
         patch -p1 < 10_enable_susfs_for_ksu.patch || echo "Patch failed, skipping."
-        git checkout -- kernel/core_hook.c
+        git restore kernel/core_hook.c
 
-        patch -p1 < $GITHUB_WORKSPACE/patches/ksu-susfs.patch || echo "Non-GKI patch failed, skipping."
-
-     
+        patch -p1 < $GITHUB_WORKSPACE/patches/ksu-susfs.patch || echo "Non-GKI patch failed, skipping."     
 
         git add .
+        git checkout -b 'test'
         git commit -m 'test'
+
         cd ..
 
-        bash KernelSU-Next/kernel/setup.sh
+        bash KernelSU-Next/kernel/setup.sh test
 
 
         patch -p1 < 50_add_susfs_in_kernel-4.19.patch || echo "Patch failed, skipping."
